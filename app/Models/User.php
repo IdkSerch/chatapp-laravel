@@ -21,7 +21,17 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
     ];
+    public function contacts()
+{
+    return $this->hasMany(Contact::class);
+}
+
+public function messages()
+{
+    return $this->hasMany(Message::class, 'sender_id');
+}
 
     /**
      * The attributes that should be hidden for serialization.
