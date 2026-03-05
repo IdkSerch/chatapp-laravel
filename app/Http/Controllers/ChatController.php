@@ -17,11 +17,20 @@ class ChatController extends Controller
         ->get();
 
     $contactIds = $contacts->pluck('contact_id')->toArray();
-    $contactIds[] = Auth::id();
 
-    $suggestions = User::whereNotIn('id', $contactIds)->get();
+    // Usuarios que te enviaron mensajes aunque no los tengas agregados
+    $receivedFrom = Message::where('receiver_id', Auth::id())
+        ->whereNotIn('sender_id', $contactIds)
+        ->where('sender_id', '!=', Auth::id())
+        ->pluck('sender_id')
+        ->unique();
 
-    return view('chat.index', compact('contacts', 'suggestions'));
+    $extraContacts = User::whereIn('id', $receivedFrom)->get();
+
+    $allContactIds = array_merge($contactIds, $receivedFrom->toArray(), [Auth::id()]);
+    $suggestions = User::whereNotIn('id', $allContactIds)->get();
+
+    return view('chat.index', compact('contacts', 'extraContacts', 'suggestions'));
 }
 
     public function show($userId)
