@@ -45,7 +45,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('chat.index'));
+        return redirect(route('login'))->with('status', '¡Cuenta creada! Ahora inicia sesión.');
 
     }
 }
