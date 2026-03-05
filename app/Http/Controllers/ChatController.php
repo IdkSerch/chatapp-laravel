@@ -11,12 +11,18 @@ use Illuminate\Support\Facades\Auth;
 class ChatController extends Controller
 {
     public function index()
-    {
-        $contacts = Contact::where('user_id', Auth::id())
-            ->with('contactUser')
-            ->get();
-        return view('chat.index', compact('contacts'));
-    }
+{
+    $contacts = Contact::where('user_id', Auth::id())
+        ->with('contactUser')
+        ->get();
+
+    $contactIds = $contacts->pluck('contact_id')->toArray();
+    $contactIds[] = Auth::id();
+
+    $suggestions = User::whereNotIn('id', $contactIds)->get();
+
+    return view('chat.index', compact('contacts', 'suggestions'));
+}
 
     public function show($userId)
     {
