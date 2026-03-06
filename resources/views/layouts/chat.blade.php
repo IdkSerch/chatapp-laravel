@@ -105,15 +105,26 @@
                     <p>Sin contactos aún.<br/>Agrega a alguien para chatear.</p>
                 </div>
             @else
-                @foreach($contacts as $contact)
-                    <a href="{{ route('chat.show', $contact->contactUser->id) }}"
-                       class="contact-item {{ isset($activeContact) && $activeContact->id === $contact->contactUser->id ? 'active' : '' }}">
-                        <div class="avatar sm">
-                            {{ strtoupper(substr($contact->contactUser->name, 0, 1)) }}
-                        </div>
+                @foreach($extraContacts as $extra)
+    <a href="{{ route('chat.show', $extra->id) }}"
+       class="contact-item {{ isset($activeContact) && $activeContact->id === $extra->id ? 'active' : '' }}">
+        <div class="avatar sm">{{ strtoupper(substr($extra->name, 0, 1)) }}</div>
+        <div>
+            <div class="contact-name">{{ $extra->name }}</div>
+            <div class="contact-email">Te envió un mensaje</div>
                         <div>
-                            <div class="contact-name">{{ $contact->contactUser->name }}</div>
-                            <div class="contact-email">{{ $contact->contactUser->email }}</div>
+                            @php
+    $roomId = collect([$contact->user_id, $contact->contact_id])->sort()->implode('_');
+    $lastMsg = \App\Models\Message::where(function($q) use ($contact) {
+        $q->where('sender_id', $contact->user_id)->where('receiver_id', $contact->contact_id);
+    })->orWhere(function($q) use ($contact) {
+        $q->where('sender_id', $contact->contact_id)->where('receiver_id', $contact->user_id);
+    })->latest()->first();
+@endphp
+<div class="contact-name">{{ $contact->contactUser->name }}</div>
+<div class="contact-email">
+    {{ $lastMsg ? (strlen($lastMsg->body) > 30 ? substr($lastMsg->body, 0, 30).'...' : $lastMsg->body) : 'Sin mensajes aún' }}
+</div>
                         </div>
                     </a>
                 @endforeach
