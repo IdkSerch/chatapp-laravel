@@ -17,11 +17,19 @@ class ChatController extends Controller
         ->get();
 
     $contactIds = $contacts->pluck('contact_id')->toArray();
-    $contactIds[] = Auth::id();
 
-    $suggestions = User::whereNotIn('id', $contactIds)->get();
+    $extraContacts = \App\Models\Message::where('receiver_id', Auth::id())
+        ->whereNotIn('sender_id', $contactIds)
+        ->where('sender_id', '!=', Auth::id())
+        ->pluck('sender_id')
+        ->unique()
+        ->map(fn($id) => \App\Models\User::find($id))
+        ->filter();
 
-    return view('chat.index', compact('contacts', 'suggestions'));
+    $allContactIds = array_merge($contactIds, $extraContacts->pluck('id')->toArray(), [Auth::id()]);
+    $suggestions = \App\Models\User::whereNotIn('id', $allContactIds)->get();
+
+    return view('chat.index', compact('contacts', 'extraContacts', 'suggestions'));
 }
 
     public function show($userId)
