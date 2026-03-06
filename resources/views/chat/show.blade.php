@@ -85,21 +85,32 @@
         el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     }
 
-    setInterval(() => {
-    const input = document.getElementById('msgInput');
-    const saved = input ? input.value : '';
-    location.reload();
-    sessionStorage.setItem('draft', saved);
-}, 3000);
+    // Polling sin recargar la página
+    let lastCount = document.querySelectorAll('.msg').length;
 
-// Restaurar el mensaje al recargar
-window.addEventListener('load', () => {
-    const draft = sessionStorage.getItem('draft');
-    const input = document.getElementById('msgInput');
-    if (draft && input) {
-        input.value = draft;
-        sessionStorage.removeItem('draft');
-    }
-});
+    setInterval(() => {
+        const input = document.getElementById('msgInput');
+        const isFocused = document.activeElement === input;
+
+        fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newMessages = doc.getElementById('messagesWrap');
+                const currentMessages = document.getElementById('messagesWrap');
+
+                const newCount = newMessages.querySelectorAll('.msg').length;
+                if (newCount !== lastCount) {
+                    const atBottom = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < 60;
+                    currentMessages.innerHTML = newMessages.innerHTML;
+                    lastCount = newCount;
+                    if (atBottom) wrap.scrollTop = wrap.scrollHeight;
+                }
+
+                // Restaurar foco si lo tenía
+                if (isFocused) input.focus();
+            });
+    }, 3000);
 </script>
 @endsection
