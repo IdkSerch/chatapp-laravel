@@ -85,7 +85,21 @@
         el.style.height = Math.min(el.scrollHeight, 120) + 'px';
     }
 
-    // Auto-refresh cada 3 segundos
-    setTimeout(() => location.reload(), 3000);
+    setInterval(() => {
+    const input = document.getElementById('msgInput');
+    const saved = input ? input.value : '';
+    location.reload();
+    sessionStorage.setItem('draft', saved);
+}, 3000);
+
+// Restaurar el mensaje al recargar
+window.addEventListener('load', () => {
+    const draft = sessionStorage.getItem('draft');
+    const input = document.getElementById('msgInput');
+    if (draft && input) {
+        input.value = draft;
+        sessionStorage.removeItem('draft');
+    }
+});
 </script>
 @endsection
