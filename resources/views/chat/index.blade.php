@@ -6,6 +6,7 @@
     .chat-empty-icon { width: 80px; height: 80px; }
     .chat-empty h2 { font-size: 1.2rem; color: var(--text); font-weight: 600; }
     .chat-empty p { font-size: 0.85rem; }
+<<<<<<< HEAD
     .suggestions { width: 100%; max-width: 400px; margin-top: 8px; }
     .suggestions-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
     .suggestion-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; }
@@ -14,6 +15,8 @@
     .suggestion-email { font-size: 0.75rem; color: var(--muted); }
     .add-btn { padding: 6px 14px; background: linear-gradient(135deg, var(--green), var(--teal)); border: none; border-radius: 8px; color: white; font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .add-btn:hover { opacity: 0.85; }
+=======
+>>>>>>> gerardo
 </style>
 
 <div class="chat-empty">
@@ -25,6 +28,7 @@
     </div>
     <h2>Bienvenido a ChatApp</h2>
     <p>Selecciona un contacto para comenzar a chatear.</p>
+<<<<<<< HEAD
 
     @if($suggestions->isNotEmpty())
     <div class="suggestions">
@@ -47,5 +51,7 @@
         @endforeach
     </div>
     @endif
+=======
+>>>>>>> gerardo
 </div>
 @endsection
