@@ -11,26 +11,26 @@ use Illuminate\Support\Facades\Auth;
 class ChatController extends Controller
 {
     public function index()
-{
-    $contacts = Contact::where('user_id', Auth::id())
-        ->with('contactUser')
-        ->get();
+    {
+        $contacts = Contact::where('user_id', Auth::id())
+            ->with('contactUser')
+            ->get();
 
-    $contactIds = $contacts->pluck('contact_id')->toArray();
+        $contactIds = $contacts->pluck('contact_id')->toArray();
 
-    $extraContacts = \App\Models\Message::where('receiver_id', Auth::id())
-        ->whereNotIn('sender_id', $contactIds)
-        ->where('sender_id', '!=', Auth::id())
-        ->pluck('sender_id')
-        ->unique()
-        ->map(fn($id) => \App\Models\User::find($id))
-        ->filter();
+        $extraContacts = Message::where('receiver_id', Auth::id())
+            ->whereNotIn('sender_id', $contactIds)
+            ->where('sender_id', '!=', Auth::id())
+            ->pluck('sender_id')
+            ->unique()
+            ->map(fn($id) => User::find($id))
+            ->filter();
 
-    $allContactIds = array_merge($contactIds, $extraContacts->pluck('id')->toArray(), [Auth::id()]);
-    $suggestions = \App\Models\User::whereNotIn('id', $allContactIds)->get();
+        $allContactIds = array_merge($contactIds, $extraContacts->pluck('id')->toArray(), [Auth::id()]);
+        $suggestions = User::whereNotIn('id', $allContactIds)->get();
 
-    return view('chat.index', compact('contacts', 'extraContacts', 'suggestions'));
-}
+        return view('chat.index', compact('contacts', 'extraContacts', 'suggestions'));
+    }
 
     public function show($userId)
     {
@@ -38,20 +38,33 @@ class ChatController extends Controller
         $contacts = Contact::where('user_id', Auth::id())
             ->with('contactUser')
             ->get();
-        $messages = Message::where(function($q) use ($userId) {
-                $q->where('sender_id', Auth::id())
-                  ->where('receiver_id', $userId);
-            })->orWhere(function($q) use ($userId) {
-                $q->where('sender_id', $userId)
-                  ->where('receiver_id', Auth::id());
-            })->orderBy('created_at')->get();
 
-        return view('chat.show', compact('contact', 'contacts', 'messages'));
+        $contactIds = $contacts->pluck('contact_id')->toArray();
+        $extraContacts = Message::where('receiver_id', Auth::id())
+            ->whereNotIn('sender_id', $contactIds)
+            ->where('sender_id', '!=', Auth::id())
+            ->pluck('sender_id')
+            ->unique()
+            ->map(fn($id) => User::find($id))
+            ->filter();
+
+        $messages = Message::where(function($q) use ($userId) {
+            $q->where('sender_id', Auth::id())->where('receiver_id', $userId);
+        })->orWhere(function($q) use ($userId) {
+            $q->where('sender_id', $userId)->where('receiver_id', Auth::id());
+        })->orderBy('created_at')->get();
+
+        $activeContact = $contact;
+
+        return view('chat.show', compact('contact', 'contacts', 'extraContacts', 'messages', 'activeContact'));
     }
 
     public function send(Request $request)
     {
-        $request->validate(['receiver_id' => 'required|exists:users,id', 'body' => 'required|string']);
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+            'body' => 'required|string'
+        ]);
 
         Message::create([
             'sender_id'   => Auth::id(),
