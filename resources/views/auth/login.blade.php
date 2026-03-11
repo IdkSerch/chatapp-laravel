@@ -48,5 +48,10 @@
     </a>
 </div>
         </div>
+        <div style="text-align:center; margin-top:16px;">
+    <a href="{{ route('register') }}" style="color:#00C853; font-size:0.88rem; text-decoration:none;">
+        ¿No tienes cuenta? Regístrate aquí
+    </a>
+</div>
     </form>
 </x-guest-layout>

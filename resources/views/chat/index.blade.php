@@ -26,7 +26,7 @@
     <h2>Bienvenido a ChatApp</h2>
     <p>Selecciona un contacto para comenzar a chatear.</p>
 
-    @if($suggestions->isNotEmpty())
+    @if(isset($suggestions) && $suggestions->isNotEmpty())
     <div class="suggestions">
         <p class="suggestions-title">👥 Personas que puedes agregar</p>
         @foreach($suggestions as $user)

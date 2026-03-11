@@ -23,6 +23,25 @@
 </style>
 
 <div class="chat-header">
+    @php
+    $esContacto = \App\Models\Contact::where('user_id', Auth::id())
+        ->where('contact_id', $contact->id)->exists();
+@endphp
+
+@if(!$esContacto)
+<div style="background:rgba(0,200,83,0.07); border-bottom:1px solid rgba(0,200,83,0.14); padding:10px 20px; display:flex; align-items:center; justify-content:space-between;">
+    <span style="font-size:0.82rem; color:var(--muted);">
+        ⚠️ <strong style="color:var(--text);">{{ $contact->name }}</strong> no está en tus contactos
+    </span>
+    <form method="POST" action="{{ route('contacts.add') }}">
+        @csrf
+        <input type="hidden" name="email" value="{{ $contact->email }}"/>
+        <button type="submit" style="padding:6px 14px; background:linear-gradient(135deg,#00C853,#00897B); border:none; border-radius:8px; color:white; font-size:0.78rem; font-weight:600; cursor:pointer;">
+            + Agregar
+        </button>
+    </form>
+</div>
+@endif
     <div class="avatar sm">
         {{ strtoupper(substr($contact->name, 0, 1)) }}
     </div>
